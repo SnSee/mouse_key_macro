@@ -1,16 +1,17 @@
+import os
 import threading
 import winsound
 import pyttsx3
 
-_SOUND_DIR = "./sounds/"
+_SOUND_DIR = os.path.join(os.path.dirname(__file__), "sounds")
 
 
 class _AudioManager:
 
-    SOUND_START_RECORD = _SOUND_DIR + "start_record.mp3"
-    SOUND_STOP_RECORD = _SOUND_DIR + "stop_record.mp3"
-    SOUND_START_IMITATE = _SOUND_DIR + "start_imitate.mp3"
-    SOUND_STOP_IMITATE = _SOUND_DIR + "stop_imitate.mp3"
+    SOUND_START_RECORD = os.path.join(_SOUND_DIR, "start_record.mp3")
+    SOUND_STOP_RECORD = os.path.join(_SOUND_DIR, "stop_record.mp3")
+    SOUND_START_IMITATE = os.path.join(_SOUND_DIR, "start_imitate.mp3")
+    SOUND_STOP_IMITATE = os.path.join(_SOUND_DIR, "stop_imitate.mp3")
 
     def __init__(self):
         self._engine = pyttsx3.init(debug=True)

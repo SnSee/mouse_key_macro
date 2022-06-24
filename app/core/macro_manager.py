@@ -152,6 +152,9 @@ class MacroManager:
         logging.info(f"已{desc}宏 {macro_name} 快捷键{':' if hot_key else ''} {hot_key}")
         return True
 
+    def set_macro_relative(self, macro_name: str, relative: bool):
+        self._all_macros[macro_name].relative_mode = relative
+
     def set_macro_desc(self, macro_name: str, desc: str):
         self._all_macros[macro_name].desc = desc
 
@@ -361,15 +364,21 @@ class MacroManager:
     def imitate(self, hot_key):
         if hot_key not in self._hot_keys:
             return
-        values = list(self._batches.values())
-        values.extend(list(self._all_macros.values()))
-        for macro in values:
+        for macro in self._all_macros.values():
             if macro.hot_key == hot_key:
                 logging.info(f"{macro.name} 开始模拟")
                 self._imitating = True
                 macro.imitate(hot_key)
                 self._imitating = False
                 logging.info(f"{macro.name} 结束模拟")
+                return
+        for batch in self._batches.values():
+            if batch.hot_key == hot_key:
+                logging.info(f"{batch.name} 开始模拟")
+                self._imitating = True
+                batch.imitate()
+                self._imitating = False
+                logging.info(f"{batch.name} 结束模拟")
                 return
         assert False
 

@@ -49,7 +49,7 @@ class MacroBatch:
         
     def has_macro(self, macro_name: str):
         for macro in self._macros:
-            if macro.name == macro_name:
+            if macro[0].name == macro_name:
                 return True
         return False
 

@@ -29,7 +29,7 @@ class MacroTable(QTableWidget):
         if item.column() == 1:
             self._key_recorder.show()
         elif item.column() == 2:
-            MacroMgr.set_relative_move(name, item.checkState())
+            MacroMgr.set_macro_relative(name, True if item.checkState() == Qt.Checked else False)
 
     def _on_item_changed(self, item: QTableWidgetItem):
         if item.column() == 0:

@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
-    MacroMgr.set_sound_enabled(False)
+    MacroMgr.set_sound_enabled(True)
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create("Fusion"))
     app.setFont(QtGui.QFont("微软雅黑", 10))
