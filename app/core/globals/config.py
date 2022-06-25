@@ -27,5 +27,14 @@ class _GlobalConfig:
     def screen_size(self):
         return self._screen_size
 
+    def to_dict(self):
+        return {"dd_mode": self.dd_mode}
+
+    def from_dict(self, data: dict):
+        if data.get("dd_mode", False):
+            from ctypes import windll
+            if windll.shell32.IsUserAnAdmin():
+                self.dd_mode = True
+
 
 GlobalConfig = _GlobalConfig()

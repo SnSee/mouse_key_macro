@@ -14,6 +14,10 @@ from entity.macro_batch import MacroBatch
 class MacroManager:
     LISTEN_EXIT_RECORD = 0
     LISTEN_EXIT_IMITATE = 1
+
+    @staticmethod
+    def get_sound_enabled():
+        return AudioMgr.enabled
     
     # 是否播放声音
     @staticmethod
@@ -62,11 +66,14 @@ class MacroManager:
     def all_macros(self):
         return self._all_macros
 
+    def _add_hot_key(self, key):
+        if key:
+            self._hot_keys.add(key)
+
     def _replace_hot_key(self, old_key, new_key):
         if old_key in self._hot_keys:
             self._hot_keys.remove(old_key)
-        if new_key:
-            self._hot_keys.add(new_key)
+        self._add_hot_key(new_key)
 
     # 鼠标移动回调
     def _on_move(self, x, y):
@@ -132,14 +139,40 @@ class MacroManager:
         if self._callback and not forced:
             self._callback()
 
+    # 打包成dict，方便使用json写入文件
+    def _to_dict(self):
+        macro_configs = {name: macro.to_dict() for name, macro in self._all_macros.items()}
+        batches = {name: batch.to_dict() for name, batch in self._batches.items()}
+        json_dict = {
+            "switch_key": self.switch_key,
+            "macro_names": self._macro_names,
+            "macros": macro_configs,
+            "batch_names": self._batch_names,
+            "batches": batches
+        }
+        json_dict.update(GlobalConfig.to_dict())
+        json_dict.update(AudioMgr.to_dict())
+        return json_dict
+
+    def _from_dict(self, json_dict: dict):
+        macros = json_dict.get("macros", {})
+        for macro_name in json_dict.get("macro_names", []):
+            self._macro = Macro(macro_name)
+            if self._macro.from_dict(macros[macro_name]):
+                self.retain_current()
+        batches = json_dict.get("batches", {})
+        for mb_name in json_dict.get("batch_names", []):
+            batch = MacroBatch(mb_name)
+            batch.from_dict(batches[mb_name], self._all_macros)
+            self._add_hot_key(batch.hot_key)
+            self.add_batch(mb_name, batch)
+        self.switch_key = json_dict.get("switch_key", "")
+        GlobalConfig.from_dict(json_dict)
+        AudioMgr.from_dict(json_dict)
+
     # 设置结束录制回调
     def set_callback(self, callback):
         self._callback = callback
-
-    def set_enabled(self, name: str, enabled):
-        macro = self._all_macros.get(name, None)
-        if macro:
-            macro.set_enabled(enabled)
 
     # 设置触发快捷键
     def set_hot_key(self, macro_name: str, hot_key: str):
@@ -167,7 +200,7 @@ class MacroManager:
             logging.warning("宏名尚未设置")
             return False
         if mb.hot_key == hot_key:
-            return
+            return True
         self._replace_hot_key(mb.hot_key, hot_key)
         mb.hot_key = hot_key
         desc = "设置" if hot_key else "清空"
@@ -387,38 +420,17 @@ class MacroManager:
         # 保存所有宏
         if not os.path.exists(GlobalConfig.MACRO_DIR):
             os.mkdir(GlobalConfig.MACRO_DIR)
-        macro_configs = {name: macro.to_dict() for name, macro in self._all_macros.items()}
-        batches = {name: batch.to_dict() for name, batch in self._batches.items()}
-        settings = {
-            "switch_key": self.switch_key,
-            "dd_mode": GlobalConfig.dd_mode,
-            "macro_names": self._macro_names,
-            "macros": macro_configs,
-            "batch_names": self._batch_names,
-            "batches": batches
-        }
         json_file = os.path.join(GlobalConfig.MACRO_DIR, GlobalConfig.MACRO_CONFIG)
         with open(json_file, "w") as fj:
-            fj.write(json.dumps(settings, indent=2))
+            fj.write(json.dumps(self._to_dict(), indent=2))
 
     def load_from_file(self):
         json_file = os.path.join(GlobalConfig.MACRO_DIR, GlobalConfig.MACRO_CONFIG)
-        settings = {}
+        json_dict = {}
         if os.path.exists(json_file):
             with open(json_file) as fj:
-                settings = json.load(fj)
-        macros = settings.get("macros", {})
-        for macro_name in settings.get("macro_names", []):
-            self._macro = Macro(macro_name)
-            if self._macro.from_dict(macros[macro_name]):
-                self.retain_current()
-        batches = settings.get("batches", {})
-        for mb_name in settings.get("batch_names", []):
-            batch = MacroBatch(mb_name)
-            batch.from_dict(batches[mb_name], self._all_macros)
-            self.add_batch(mb_name, batch)
-        self.config.dd_mode = settings.get("dd_mode", False)
-        self.switch_key = settings.get("switch_key", "")
+                json_dict = json.load(fj)
+        self._from_dict(json_dict)
 
 
 MacroMgr = MacroManager()

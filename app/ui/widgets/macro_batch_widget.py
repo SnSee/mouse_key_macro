@@ -19,9 +19,3 @@ class MacroBatchWidget(QWidget):
 
     def _create_batch(self):
         self._batch_table.add_batch(Name.default_name(), "")
-
-    def set_enabled(self, enabled: bool):
-        if self._add_btn.isEnabled() == enabled:
-            return
-        self._add_btn.setEnabled(enabled)
-        self._batch_table.set_enabled(enabled)

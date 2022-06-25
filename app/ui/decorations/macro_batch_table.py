@@ -54,11 +54,9 @@ class MacroBatchTable(QTableWidget):
             MacroMgr.del_batch(batch_name)
 
     def _hot_key_chose(self, key: str):
-        if not MacroMgr.valid_hot_key(key):
-            return
-        self._set_text(self.currentItem(), key)
         batch_name = self.item(self.currentRow(), 0).text()
-        MacroMgr.set_batch_hot_key(batch_name, key)
+        if MacroMgr.set_batch_hot_key(batch_name, key):
+            self._set_text(self.currentItem(), key)
 
     def _item_clicked(self, item: QTableWidgetItem):
         if item.column() == 1:
@@ -88,14 +86,6 @@ class MacroBatchTable(QTableWidget):
         trash_btn = get_trash_button(self, None, True)
         trash_btn.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setCellWidget(row_count, 3, trash_btn)
-
-    def set_enabled(self, enabled: bool):
-        # 设置QTableWidget是否可交互
-        self.setEditTriggers(self._default_trigger if enabled else self.NoEditTriggers)
-        if enabled:
-            self.itemClicked.connect(self._item_clicked)
-        else:
-            self.itemClicked.disconnect(self._item_clicked)
 
     def add_batch(self, name, hot_key, desc=""):
         MacroMgr.add_batch(name)

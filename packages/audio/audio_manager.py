@@ -42,5 +42,11 @@ class _AudioManager:
         self._engine.save_to_file(text, file)
         self._engine.runAndWait()
 
+    def to_dict(self):
+        return {"enable_sound": self.enabled}
+
+    def from_dict(self, data: dict):
+        self.enabled = data.get("enable_sound", False)
+
 
 AudioMgr = _AudioManager()

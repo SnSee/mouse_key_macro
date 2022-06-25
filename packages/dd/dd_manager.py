@@ -5,10 +5,6 @@ from ctypes import windll
 from utils.key_transfer import dd_key_number
 
 
-def has_key(key: str):
-    return dd_key_number(key) is not None
-
-
 class DDManagerP:
 
     def __init__(self, dll_path):

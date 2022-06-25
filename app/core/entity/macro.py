@@ -105,6 +105,7 @@ class Macro:
 
     def _load(self):
         if not os.path.exists(self._file):
+            logging.error(f"不存在宏文件 {self._file}")
             return False
         with open(self._file) as fj:
             lines = fj.readlines()
