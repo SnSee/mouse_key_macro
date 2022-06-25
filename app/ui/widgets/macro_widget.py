@@ -1,6 +1,5 @@
 import threading
-from PyQt5.QtWidgets import QWidget, QLabel
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal
 from macro_manager import MacroMgr
 from dialogs.propose_macro_dialog import CreateDialog
@@ -56,6 +55,7 @@ class MacroWidget(QWidget):
     def _propose_macro(self):
         self._lock.acquire()
         if not self._propose_dlg:
+            # noinspection all
             self._propose_dlg = CreateDialog(self)
             # noinspection all
             self._propose_dlg.name_set.connect(self._retain_macro)

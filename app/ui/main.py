@@ -21,28 +21,26 @@ class MainWindow(QMainWindow):
         self.setFixedSize(460, 460)
 
     def _init_ui(self):
-        self._dd_switch = QCheckBox("使用dd按键", self)
-        self._dd_switch.setCheckState(Qt.Checked if MacroMgr.config().dd_mode else Qt.Unchecked)
-        self._dd_switch.stateChanged.connect(self._set_dd_mode)
+        self._init_menu()
+        self._init_dock()
+
         self._listen_btn = QPushButton(self)
         self._update_listen_btn()
+        # noinspection all
         self._listen_btn.clicked.connect(self._switch_listening_status)
 
+        # noinspection all
         self._macro_widget = MacroWidget(self)
         self._macro_widget.propose_end.connect(self._listen)
+        # noinspection all
         self._batch_widget = MacroBatchWidget(self)
-        self._dock_widget = DockWidget(self)
-        self._dock_widget.setFixedHeight(180)
         self._setting_dialog = None
-
-        self._init_menu()
 
         self._tabs = QTabWidget(self)
         self._tabs.addTab(self._macro_widget, "宏")
         self._tabs.addTab(self._batch_widget, "宏组")
 
         lay_switch = QHBoxLayout()
-        lay_switch.addWidget(self._dd_switch)
         lay_switch.addWidget(self._listen_btn)
 
         lay = QVBoxLayout()
@@ -51,23 +49,20 @@ class MainWindow(QMainWindow):
         cw = QWidget()
         cw.setLayout(lay)
         self.setCentralWidget(cw)
-        self.addDockWidget(Qt.BottomDockWidgetArea, self._dock_widget)
 
     def _init_menu(self):
         file_menu = self.menuBar().addMenu("文件")
         file_menu.addAction("设置", self._open_setting)
 
-    def _set_dd_mode(self, use_dd):
-        if not use_dd:
-            MacroMgr.config().dd_mode = False
-            return
-        # 检查是否具有管理员权限
-        from ctypes import windll
-        if not windll.shell32.IsUserAnAdmin():
-            QMessageBox.warning(self, "Warning", "以管理员身份运行才能使用dd按键")
-            self._dd_switch.setCheckState(Qt.Unchecked)
-            return
-        MacroMgr.config().dd_mode = True
+        win_menu = self.menuBar().addMenu("窗口")
+        win_menu.addAction("打开日志", self._open_log)
+
+    def _init_dock(self):
+        self._dock_widget = DockWidget(self)
+        self._dock_widget.setFixedHeight(180)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self._dock_widget)
+        if not MacroMgr.config().show_log:
+            self._dock_widget.hide()
 
     def _switch_listening_status(self):
         self._listening = not self._listening
@@ -93,15 +88,20 @@ class MainWindow(QMainWindow):
             self._setting_dialog = SettingDialog(self)
         self._setting_dialog.exec()
 
+    def _open_log(self):
+        self._dock_widget.show()
+
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        MacroMgr.save_to_file()
         if self._listening:
             self._switch_listening_status()
+        MacroMgr.config().show_log = self._dock_widget.isVisible()
+        MacroMgr.save_to_file()
 
 
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
     app = QApplication(sys.argv)
+    # noinspection all
     app.setStyle(QStyleFactory.create("Fusion"))
     app.setFont(QtGui.QFont("微软雅黑", 10))
     win = MainWindow()

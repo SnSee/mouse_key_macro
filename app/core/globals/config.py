@@ -8,6 +8,7 @@ class _GlobalConfig:
 
     def __init__(self):
         self._dd_mode = False           # 是否使用dd驱动模拟键鼠
+        self._show_log = True           # 是否显示日志
         self._screen_size = pyautogui.size()
 
     @property
@@ -24,17 +25,29 @@ class _GlobalConfig:
                 self._dd_mode = False
 
     @property
+    def show_log(self):
+        return self._show_log
+
+    @show_log.setter
+    def show_log(self, show):
+        self._show_log = show
+
+    @property
     def screen_size(self):
         return self._screen_size
 
     def to_dict(self):
-        return {"dd_mode": self.dd_mode}
+        return {
+            "dd_mode": self.dd_mode,
+            "show_log": self.show_log
+        }
 
     def from_dict(self, data: dict):
         if data.get("dd_mode", False):
             from ctypes import windll
             if windll.shell32.IsUserAnAdmin():
                 self.dd_mode = True
+        self.show_log = data.get("show_log", True)
 
 
 GlobalConfig = _GlobalConfig()
