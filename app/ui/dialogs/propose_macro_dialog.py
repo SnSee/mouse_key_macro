@@ -53,3 +53,4 @@ class CreateDialog(QDialog):
     def showEvent(self, e) -> None:
         self._name.setText("")
         self._hot_key.clear()
+        self._name.setFocus()

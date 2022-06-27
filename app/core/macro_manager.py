@@ -1,3 +1,4 @@
+import copy
 import os
 import json
 import logging
@@ -73,7 +74,8 @@ class MacroManager:
     def _replace_hot_key(self, old_key, new_key):
         if old_key in self._hot_keys:
             self._hot_keys.remove(old_key)
-        self._add_hot_key(new_key)
+        if new_key:
+            self._add_hot_key(new_key)
 
     # 鼠标移动回调
     def _on_move(self, x, y):
@@ -283,6 +285,12 @@ class MacroManager:
         logging.info(f"宏 {name} 已被删除")
         return True
 
+    # 删除所有宏
+    def del_all_macros(self):
+        names = copy.deepcopy(self._macro_names)
+        for name in names:
+            self.del_macro(name)
+
     # 新建宏组
     def add_batch(self, name: str, batch: MacroBatch = None):
         if name in self._batches:
@@ -299,6 +307,12 @@ class MacroManager:
             del self._batches[name]
             self._batch_names.remove(name)
             logging.info(f"宏组 {name} 已删除")
+
+    # 删除所有宏组
+    def del_all_batches(self):
+        names = copy.deepcopy(self._macro_names)
+        for name in names:
+            self.del_batch(name)
 
     # 向宏组添加宏
     def add_macro_to_batch(self, batch_name: str, macro_name: str, times, relative):
