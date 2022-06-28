@@ -18,19 +18,16 @@ class MacroBatchTable(QTableWidget):
 
     def _init_ui(self):
         self._choose_macro_dlg = None
-        header_labels = ("名称", "快捷键", "编辑", "", "备注")
+        header_labels = ("名称", "触发按键", "编辑", "删除", "备注")
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.horizontalHeader().setStretchLastSection(True)
         self.verticalHeader().hide()
-        self.setColumnWidth(1, 50)
+        self.setColumnWidth(1, 60)
         self.setColumnWidth(2, 40)
         self.setColumnWidth(3, 40)
         # 单元格不可选中
         self.setSelectionMode(QTableWidget.NoSelection)
-        for mb_name in MacroMgr.batch_names:
-            mb = MacroMgr.get_batch(mb_name)
-            self._add_batch(mb_name, mb.hot_key, mb.desc)
         self.itemClicked.connect(self._item_clicked)
         self.itemChanged.connect(self._item_changed)
 
@@ -76,6 +73,7 @@ class MacroBatchTable(QTableWidget):
             MacroMgr.set_batch_desc(batch_name, self.item(row, self.columnCount() - 1).text().strip())
 
     def _add_batch(self, name, hot_key, desc):
+        self.itemChanged.disconnect(self._item_changed)
         row_count = self.rowCount()
         self.insertRow(row_count)
         self.setItem(row_count, 0, QTableWidgetItem(name))
@@ -86,12 +84,18 @@ class MacroBatchTable(QTableWidget):
         trash_btn = get_trash_button(self, None, True)
         trash_btn.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setCellWidget(row_count, 3, trash_btn)
+        self.itemChanged.connect(self._item_changed)
 
     def add_batch(self, name, hot_key, desc=""):
         MacroMgr.add_batch(name)
         if hot_key:
             MacroMgr.set_batch_hot_key(name, hot_key)
-        self.itemChanged.disconnect(self._item_changed)
         self._add_batch(name, hot_key, desc)
-        self.itemChanged.connect(self._item_changed)
         self.editItem(self.item(self.rowCount() - 1, 0))
+
+    def reset_content(self):
+        self.clearContents()
+        self.setRowCount(0)
+        for mb_name in MacroMgr.batch_names:
+            mb = MacroMgr.get_batch(mb_name)
+            self._add_batch(mb_name, mb.hot_key, mb.desc)

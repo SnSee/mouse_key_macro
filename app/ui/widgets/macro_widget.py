@@ -26,6 +26,7 @@ class MacroWidget(QWidget):
         # noinspection all
         self._optional_key.key_set.connect(self._on_switch_key_set)
         del_all_btn = QPushButton("全部删除", self)
+        # noinspection all
         del_all_btn.clicked.connect(self._on_del_all_macros)
 
         lay_switch = QHBoxLayout()

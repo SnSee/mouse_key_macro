@@ -310,7 +310,7 @@ class MacroManager:
 
     # 删除所有宏组
     def del_all_batches(self):
-        names = copy.deepcopy(self._macro_names)
+        names = copy.deepcopy(self._batch_names)
         for name in names:
             self.del_batch(name)
 
