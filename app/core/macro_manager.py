@@ -451,5 +451,4 @@ MacroMgr = MacroManager()
 
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.DEBUG)
-    # key_ctrl.press("1")
+    print("test")

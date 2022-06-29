@@ -99,7 +99,6 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.INFO)
     app = QApplication(sys.argv)
     # noinspection all
     app.setStyle(QStyleFactory.create("Fusion"))

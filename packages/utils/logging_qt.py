@@ -16,6 +16,5 @@ class QLogHandler(logging.Handler, QObject):
 
 if __name__ == "__main__":
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
     logger.addHandler(QLogHandler())
     logging.error("qt handler test")
